@@ -26811,14 +26811,14 @@ if test "${enable_hashlist_multiples+set}" = set; then
       echo enabling multiple values in hash lists
 
 cat >>confdefs.h <<\_ACEOF
-#define CP_HASHLIST_MUTLIPLE_VALUES 1
+#define CP_HASHLIST_MULTIPLE_VALUES 1
 _ACEOF
 
   else
       echo disabling multiple values in hash lists
 
 cat >>confdefs.h <<\_ACEOF
-#define CP_HASHLIST_MUTLIPLE_VALUES 0
+#define CP_HASHLIST_MULTIPLE_VALUES 0
 _ACEOF
 
   fi

@@ -15,6 +15,7 @@
 #include <stdio.h> /* debug */
 #include <stdlib.h>
 #include <errno.h>
+#include <assert.h>
 
 #include "collection.h"
 #include "log.h"
@@ -25,11 +26,9 @@
 
 #include "config.h"
 
-/* debug */
-#ifndef CP_HASHLIST_MULTIPLE_VALUES
-#define CP_HASHLIST_MULTIPLE_VALUES 1
-#endif
-
+//#ifndef CP_HASHLIST_MULTIPLE_VALUES
+//#define CP_HASHLIST_MULTIPLE_VALUES 1
+//#endif
 
 	/* internal methods */
 
@@ -96,6 +95,12 @@ cp_hashlist *
                                	 cp_copy_fn copy_value,
 								 cp_destructor_fn free_value)
 {
+	if ((mode & COLLECTION_MODE_LIST_ORDER)) {
+		assert(0); // jaym: COLLECTION_MODE_LIST_ORDER is buggy under the get() flow
+
+		return NULL;
+	}
+
     cp_hashlist *list = (cp_hashlist *) calloc(1, sizeof(cp_hashlist));
     if (list == NULL) 
 	{
@@ -1299,9 +1304,14 @@ static void *cp_hashlist_get_internal(cp_hashlist *list, void *key)
 		else /* insertion order */
 		{
 			entry = entry->bucket;
-			while (entry)
+			while (entry) {
 				if ((*list->compare_fn)(entry->key, key) == 0)
 					cp_list_append(res, entry->value);
+
+				// jaym: This was missing, you need to advance the bucket pointer for god's sake
+				// or else this while is infinite!
+				entry = entry->bucket;
+			}
 		}
 
 		return res;

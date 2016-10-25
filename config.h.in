@@ -4,7 +4,7 @@
 #define _CP_CONFIG_H
 
 /* no multiple values */
-#undef CP_HASHLIST_MUTLIPLE_VALUES
+#undef CP_HASHLIST_MULTIPLE_VALUES
 
 /* no multiple values */
 #undef CP_HASHTABLE_MUTLIPLE_VALUES

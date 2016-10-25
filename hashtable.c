@@ -37,9 +37,9 @@
 #include <unistd.h>
 #endif /* __OpenBSD__ */
 
-#ifndef CP_HASHTABLE_MULTIPLE_VALUES
-#define CP_HASHTABLE_MULTIPLE_VALUES 1
-#endif
+//#ifndef CP_HASHTABLE_MULTIPLE_VALUES
+//#define CP_HASHTABLE_MULTIPLE_VALUES 1
+//#endif
 
 static int table_sizes[] = 
     {

@@ -320,10 +320,10 @@ AC_ARG_ENABLE(hashlist-multiples,
 [  --enable-hashlist-multiples    hashlists allow multiple values [[disabled]]], [
   if test "$enableval" = yes; then
       echo enabling multiple values in hash lists
-      AC_DEFINE([CP_HASHLIST_MUTLIPLE_VALUES], [1], [allow multiple values])
+      AC_DEFINE([CP_HASHLIST_MULTIPLE_VALUES], [1], [allow multiple values])
   else
       echo disabling multiple values in hash lists
-      AC_DEFINE([CP_HASHLIST_MUTLIPLE_VALUES], [0], [no multiple values])
+      AC_DEFINE([CP_HASHLIST_MULTIPLE_VALUES], [0], [no multiple values])
   fi
 ])
 
