@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <stdio.h>
 #include <time.h>
 
 #include "config.h"
@@ -191,7 +192,7 @@ void cp_db_connection_set_fetch_size(cp_db_connection *connection, int fetch_siz
 
 char *cp_db_connection_escape_string(cp_db_connection *connection, 
 		                             char *src, 
-								     int len)
+								     size_t len)
 {
 	if (connection->data_source->act->escape_string)
 		return (*connection->data_source->act->escape_string)(connection, src, len);
@@ -205,8 +206,8 @@ char *cp_db_connection_escape_string(cp_db_connection *connection,
 
 char *cp_db_connection_escape_binary(cp_db_connection *connection, 
 		                             char *src, 
-								     int src_len, 
-								     int *res_len)
+								     size_t src_len, 
+								     size_t *res_len)
 {
 	char *res;
 	if (connection->data_source->act->escape_binary)
@@ -380,7 +381,7 @@ int cp_db_connection_execute_statement_args(cp_db_connection *connection,
 					break;
 
 				case CP_FIELD_TYPE_BLOB:
-					ptr = malloc(sizeof(int));
+					ptr = malloc(sizeof(cp_string));
 					p_str = va_arg(argp, cp_string);
 					memcpy(ptr, &p_str, sizeof(cp_string));
 					prm[i] = ptr;

@@ -10,6 +10,8 @@
 #include <string.h>
 #include <signal.h>
 #include <time.h>
+
+#include "config.h"
 #ifdef CP_HAS_SYS_TIME_H
 #include <sys/time.h>
 #endif
@@ -410,7 +412,7 @@ void cp_debug(char *fmt, ...)
 {
 	va_list argp;
 
-	if (loglevel > LOG_LEVEL_DEBUG) return;
+	if (loglevel > CP_LOG_LEVEL_DEBUG) return;
 //	if (fmt == NULL) return;
 
 #ifdef CP_HAS_VARIADIC_MACROS
@@ -430,7 +432,7 @@ void cp_debuginfo(char *fmt, ...)
 {
 	va_list argp;
 
-	if (loglevel > LOG_LEVEL_DEBUG) return;
+	if (loglevel > CP_LOG_LEVEL_DEBUG) return;
 
 	va_start(argp, fmt);
 	cc_printout("debug", fmt, argp);
@@ -441,7 +443,7 @@ void cp_info(char *fmt, ...)
 {
 	va_list argp;
 
-	if (loglevel > LOG_LEVEL_INFO) return;
+	if (loglevel > CP_LOG_LEVEL_INFO) return;
 
 	va_start(argp, fmt);
 	cc_printout("info", fmt, argp);
@@ -452,7 +454,7 @@ void cp_warn(char *fmt, ...)
 {
 	va_list argp;
 
-	if (loglevel > LOG_LEVEL_WARNING) return;
+	if (loglevel > CP_LOG_LEVEL_WARNING) return;
 
 	va_start(argp, fmt);
 	cc_printout("warning", fmt, argp);
@@ -470,7 +472,7 @@ void cp_error(int code, char *fmt, ...)
 	char errmsg[224];
 	char *msg;
 
-	if (loglevel > LOG_LEVEL_ERROR) return;
+	if (loglevel > CP_LOG_LEVEL_ERROR) return;
 //	if (fmt == NULL) return;
 
 	msg = cp_hashtable_get(error_message_lookup, &code);
@@ -517,7 +519,7 @@ void cp_perror(int code, int errno_code, char *fmt, ...)
 #endif
 	char *msg;
 
-	if (loglevel > LOG_LEVEL_ERROR) return;
+	if (loglevel > CP_LOG_LEVEL_ERROR) return;
 //	if (fmt == NULL) return;
 
 	msg = cp_hashtable_get(error_message_lookup, &code);
@@ -572,7 +574,7 @@ void cp_fatal(int code, char *fmt, ...)
 	char errcode[30];
 
 //	if (fmt == NULL) return;
-	if (loglevel <= LOG_LEVEL_FATAL)
+	if (loglevel <= CP_LOG_LEVEL_FATAL)
 	{
 #ifdef CP_HAS_SNPRINTF
 		snprintf(errcode, 30, "fatal (%d)", code);
@@ -593,7 +595,8 @@ void cp_fatal(int code, char *fmt, ...)
 	}
 
 	cp_log_close();
-	exit(code);
+	fflush(stdout);
+	fflush(stderr);
 }
 
 #ifdef DEBUG
@@ -605,7 +608,7 @@ void DEBUGMSG(char *fmt, ...)
 {
 	va_list argp;
 
-	if (loglevel > LOG_LEVEL_DEBUG) return;
+	if (loglevel > CP_LOG_LEVEL_DEBUG) return;
 //	if (fmt == NULL) return;
 
 #ifdef CP_HAS_VARIADIC_MACROS
@@ -655,12 +658,12 @@ static char *print_char =
 	"pqrstuvwxyz{|}~ "
 	"                "
 	"                "
-	" ¡¢£¤¥¦§¨©ª«¬­®¯"
-	"°±²³´µ¶·¸¹º»¼½¾¿"
-	"ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ"
-	"ĞÑÒÓÔÕÖ×ØÙÚÛÜİŞß"
-	"àáâãäåæçèéêëìíîï"
-	"ğñòóôõö÷øùúûüışÿ";
+	" ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"
+	"ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"
+	"ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"
+	"ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"
+	"ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"
+	"ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½";
 
 void cp_dump(int levelprm, cp_string *str)
 {

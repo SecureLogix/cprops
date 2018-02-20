@@ -13,11 +13,11 @@
  * before exiting, cp_log_close() should be called to ensure the log is 
  * flushed.
  * <ul>
- * <li> DEBUGMSG(fmt, ...) for printouts on LOG_LEVEL_DEBUG if compiled with -DDEBUG
- * <li> cp_info(fmt, ...) for printouts on LOG_LEVEL_INFO
- * <li> cp_warn(fmt, ...) for warning printouts - LOG_LEVEL_WARNING or lower
- * <li> cp_error(code, fmt, ...) for error messages - LOG_LEVEL_ERROR or lower
- * <li> cp_fatal(code, fmt, ...) for fatal error messages (LOG_LEVEL_FATAL)
+ * <li> DEBUGMSG(fmt, ...) for printouts on CP_LOG_LEVEL_DEBUG if compiled with -DDEBUG
+ * <li> cp_info(fmt, ...) for printouts on CP_LOG_LEVEL_INFO
+ * <li> cp_warn(fmt, ...) for warning printouts - CP_LOG_LEVEL_WARNING or lower
+ * <li> cp_error(code, fmt, ...) for error messages - CP_LOG_LEVEL_ERROR or lower
+ * <li> cp_fatal(code, fmt, ...) for fatal error messages (CP_LOG_LEVEL_FATAL)
  * </ul>
  */
 
@@ -29,21 +29,25 @@ __BEGIN_DECLS
 #include "config.h"
 
 /** debug level */
-#define LOG_LEVEL_DEBUG				0
+#define CP_LOG_LEVEL_DEBUG				0
 /** normal log level */
-#define LOG_LEVEL_INFO				1
+#define CP_LOG_LEVEL_INFO				1
 /** relatively quiet - warnings only */
-#define LOG_LEVEL_WARNING			2
+#define CP_LOG_LEVEL_WARNING			2
 /** quit - severe errors only */
-#define LOG_LEVEL_ERROR				3
+#define CP_LOG_LEVEL_ERROR				3
 /** very quiet - report fatal errors only */
-#define LOG_LEVEL_FATAL				4
+#define CP_LOG_LEVEL_FATAL				4
 /** no logging */
-#define LOG_LEVEL_SILENT			5
+#define CP_LOG_LEVEL_SILENT			5
 
 #include <stdio.h>
 
+#ifdef DEBUG
 #define cp_assert(cond) (cond == 0 ? die(1, "assertion %s failed, in %s line %d\n", #cond, __FILE__, __LINE__) : 0)
+#else /* DEBUG */
+#define cp_assert(cond)
+#endif /* DEBUG */
 
 #ifdef __OpenBSD__
 #define MAX_LOG_MESSAGE_LEN 0x1000
@@ -103,13 +107,13 @@ CPROPS_DLL
 void cp_info(char *msg, ...);
 
 /**
- * print out a LOG_LEVEL_WARNING log message 
+ * print out a CP_LOG_LEVEL_WARNING log message
  */
 CPROPS_DLL
 void cp_warn(char *msg, ...);
 
 /**
- * print out a LOG_LEVEL_ERROR log message
+ * print out a CP_LOG_LEVEL_ERROR log message
  */
 #ifdef CP_HAS_VARIADIC_MACROS
 #define cp_error(code, msg, ...) \
@@ -122,7 +126,7 @@ void cp_error(int code, char *msg, ...);
 #endif
 
 /**
- * print out a LOG_LEVEL_ERROR log message with an errno code
+ * print out a CP_LOG_LEVEL_ERROR log message with an errno code
  */
 #ifdef CP_HAS_VARIADIC_MACROS
 #define cp_perror(code, errno_code, msg, ...) \
@@ -136,8 +140,8 @@ void cp_perror(int code, int errno_code, char *msg, ...);
 #endif
 
 /**
- * print out a LOG_LEVEL_FATAL log message and exit. if log_level is 
- * LOG_LEVEL_SILENT, the error message is supressed but the process still
+ * print out a CP_LOG_LEVEL_FATAL log message and exit. if log_level is
+ * CP_LOG_LEVEL_SILENT, the error message is supressed but the process still
  * exits.
  */
 #ifdef CP_HAS_VARIADIC_MACROS

@@ -226,8 +226,7 @@ typedef CPROPS_DLL enum
 	JPEG
 } cp_http_content_type;
 
-#define DEFAULT_SERVER_NAME "libcprops-__CPROPSVERSION"
-
+#define DEFAULT_SERVER_NAME "cprops-0.1.12"
 #define DEFAULT_KEEPALIVE 300
 
 #ifndef HTTP_KEEPALIVE

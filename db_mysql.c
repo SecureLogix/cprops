@@ -18,7 +18,7 @@
 #include "db_mysql.h"
 
 // (WINVER < 0x0500)
-#if (_MSC_VER < 1300 && WINVER < 0x0500)
+#if defined(_WINDOWS) && (_MSC_VER < 1300 && WINVER < 0x0500)
 /* pre VC7 */
 //extern "C" long _ftol( double ); //defined by VC6 C libs
 long _ftol2( double dblSource ) { return _ftol( dblSource ); }

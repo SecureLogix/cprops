@@ -14,6 +14,7 @@ char *request_fmt = "GET %s HTTP/1.1\nHost: %s\nConnection: close\n\n";
 
 int main(int argc, char *argv[])
 {
+	int rc;
 	cp_client *client;
 	char request[0x100];
 	char *hostbuf, *host, *uri, *pbuf;
@@ -49,7 +50,9 @@ int main(int argc, char *argv[])
 	uri = strchr(pbuf, '/');
 	if (uri == NULL) uri = NOURI;
 
-	cp_client_init();
+	rc = cp_client_init();
+	if (rc != 0)
+		return rc;
 
 	client = cp_client_create(host, port);
 	if (client == NULL)

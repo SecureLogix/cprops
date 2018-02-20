@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "collection.h"
 #include "trie.h"
 #include "mtab.h"
@@ -607,7 +608,6 @@ static void extract_subtrie(cp_trie_node *link, cp_vector *v);
 static int extract_node(void *n, void *v)
 {
 	mtab_node *node = n;
-	cp_vector *res = v;
 
 	extract_subtrie(node->value, v);
 

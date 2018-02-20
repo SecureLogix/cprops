@@ -264,7 +264,10 @@ cp_thread_pool *cp_thread_pool_create(int min_size, int max_size)
 	int rc;
 	cp_thread_pool *pool = calloc(1, sizeof(cp_thread_pool));
 	if (pool == NULL)
-		cp_fatal(CP_MEMORY_ALLOCATION_FAILURE, "can\'t allocate thread pool structure");
+	{
+		cp_error(CP_MEMORY_ALLOCATION_FAILURE, "can\'t allocate thread pool structure");
+		goto THREAD_POOL_CREATE_CANCEL;
+	}
 
 	pool->min_size = min_size;
 	pool->max_size = max_size;
@@ -273,11 +276,17 @@ cp_thread_pool *cp_thread_pool_create(int min_size, int max_size)
 
 	pool->free_pool = cp_list_create();
 	if (pool->free_pool == NULL)
+	{
 		cp_fatal(CP_MEMORY_ALLOCATION_FAILURE, "can\'t allocate thread pool list");
+		goto THREAD_POOL_CREATE_CANCEL;
+	}
 
 	pool->in_use = cp_hashlist_create(10, cp_hash_long, cp_hash_compare_long);
 	if (pool->in_use == NULL)
+	{
 		cp_fatal(CP_MEMORY_ALLOCATION_FAILURE, "can\'t allocate thread pool running list");
+		goto THREAD_POOL_CREATE_CANCEL;
+	}
 
 	pool->pool_lock = (cp_mutex *) malloc(sizeof(cp_mutex));
 	if (pool->pool_lock == NULL)
@@ -319,11 +328,16 @@ cp_thread_pool *cp_thread_pool_create(int min_size, int max_size)
 	return pool;
 
 THREAD_POOL_CREATE_CANCEL:
-	cp_list_destroy_custom(pool->free_pool, 
-			(cp_destructor_fn) cp_pooled_thread_destroy);
-	cp_hashlist_destroy_custom(pool->in_use, NULL, 
-			(cp_destructor_fn) cp_pooled_thread_destroy);
-	free(pool);
+	if (pool)
+	{
+		if (pool->free_pool)
+			cp_list_destroy_custom(pool->free_pool, 
+					(cp_destructor_fn) cp_pooled_thread_destroy);
+		if (pool->in_use)
+			cp_hashlist_destroy_custom(pool->in_use, NULL, 
+					(cp_destructor_fn) cp_pooled_thread_destroy);
+		free(pool);
+	}
 	return NULL;
 }
 
@@ -468,7 +482,10 @@ cp_pooled_thread_client_interface *
 	cp_pooled_thread_client_interface *ci = 
 		calloc(1, sizeof(cp_pooled_thread_client_interface));
 	if (client == NULL)
+	{
 		cp_fatal(CP_MEMORY_ALLOCATION_FAILURE, "can\'t allocate thread pool client interface");
+		return NULL;
+	}
 
 	ci->owner = owner;
 	ci->client = client;
@@ -498,7 +515,10 @@ cp_pooled_thread_scheduler *cp_pooled_thread_scheduler_create(cp_thread_pool *po
 	cp_pooled_thread_scheduler *scheduler = 
 		calloc(1, sizeof(cp_pooled_thread_scheduler));
 	if (scheduler == NULL)
+	{
 		cp_fatal(CP_MEMORY_ALLOCATION_FAILURE, "can\'t allocate thread manager");
+		return NULL;
+	}
 
 	scheduler->pool = pool;
 	scheduler->client_list = cp_vector_create(20);

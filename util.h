@@ -16,12 +16,10 @@ __BEGIN_DECLS
  */
 
 #ifndef CP_HAS_STRLCAT
-#define CP_HAS_STRLCAT
-#define strlcat strncat
+#define strlcat(d,s,n) strncat(d,s,(n-1))
 #endif /* CP_HAS_STRLCAT */
 
 #ifndef CP_HAS_STRLCPY
-#define CP_HAS_STRLCPY
 #define strlcpy strncpy
 #endif /* CP_HAS_STRLCPY */
 

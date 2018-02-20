@@ -16,14 +16,14 @@ cp_vector *cp_vector_create_by_option(int size,
 									  cp_copy_fn copy_item,
 									  cp_destructor_fn free_item)
 {
-	cp_vector *v = calloc(1, sizeof(cp_vector));
+	cp_vector *v = (cp_vector *) calloc(1, sizeof(cp_vector));
 	if (v == NULL) 
 	{
 		errno = ENOMEM;
 		return NULL;
 	}
 
-	v->mem = calloc(size, sizeof(void *));
+	v->mem = (void **) calloc(size, sizeof(void *));
 	if (v->mem == NULL)
 	{
 		errno = ENOMEM;
@@ -46,7 +46,7 @@ cp_vector *cp_vector_create(int size)
 
 cp_vector *cp_vector_wrap(void **data, int len, int mode)
 {
-	cp_vector *v = calloc(1, sizeof(cp_vector));
+	cp_vector *v = (cp_vector *) calloc(1, sizeof(cp_vector));
 	if (v == NULL) return NULL;
 
 	v->mem = data;
@@ -114,8 +114,15 @@ void *cp_vector_set_element(cp_vector *v, int index, void *element)
 
 	if (v->head >= v->size)
 	{
+		void **p;
 		v->size = index + 2;
-		v->mem = realloc(v->mem, v->size * sizeof(void *));
+		p = (void **) realloc(v->mem, v->size * sizeof(void *));
+		if (p == NULL)
+		{
+			errno = ENOMEM;
+			return NULL;
+		}
+		v->mem = p;
 	}
 
 	if ((v->mode & COLLECTION_MODE_DEEP) && 
@@ -136,8 +143,12 @@ void *cp_vector_add_element(cp_vector *v, void *element)
 
 	if (v->head + 1 >= v->tail + v->size)
 	{
-		void **newptr = realloc(v->mem, 2 * v->size * sizeof(void *));
-		if (newptr == NULL) return NULL;
+		void **newptr = (void **) realloc(v->mem, 2 * v->size * sizeof(void *));
+		if (newptr == NULL) 
+		{
+			errno = ENOMEM;
+			return NULL;
+		}
 		v->mem = newptr;
 		if (v->head < v->tail)
 		{

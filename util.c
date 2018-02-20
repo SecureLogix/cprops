@@ -886,6 +886,19 @@ int create_proc(char *path,
 	return bFuncRetn;
 }
 
+unsigned int __inline msc_clz( unsigned int x )
+{
+   int r = 0;
+   _BitScanForward(&r, x);
+   return r;
+}
+
+unsigned int _inline msc_clz64(unsigned long long x)
+{
+	int r = 0;
+	_BitScanForward64(&r, x);
+	return r;
+}
 #endif /* _WINDOWS */
 
 void replace_char(char *buf, char from, char to)

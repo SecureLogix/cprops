@@ -63,7 +63,7 @@ cp_string *cp_string_create_empty(int initial_size)
 	{
 		str->len = 0;
 		str->size = initial_size + 1;
-		str->data = malloc(str->size * sizeof(char));
+		str->data = (char *) malloc(str->size * sizeof(char));
 		if (str->data == NULL)
 		{
 			free(str);

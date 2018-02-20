@@ -2,6 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+
+#include "config.h"		// must come before using CP_HAS_xxx
+#ifdef CP_HAS_ARPA_INET_H
+#include <arpa/inet.h>
+#endif /* CP_HAS_ARPA_INET_H */
 #ifdef CP_HAS_NETINET_IN_H
 #include <netinet/in.h>
 #endif /* CP_HAS_NETINET_IN_H */
@@ -11,7 +16,6 @@
 #include <time.h>
 #include <stdio.h>
 
-#include "config.h"
 #include "common.h"
 #include "db.h"
 #include "str.h"
@@ -29,9 +33,9 @@ static int pgsql_fetch_next(cp_result_set *result_set);
 static int pgsql_release_result_set(cp_result_set *result_set);
 static int pgsql_update(cp_db_connection *_conn, char *query);
 static int pgsql_close_conn(cp_db_connection *connection);
-static char *pgsql_escape_string(cp_db_connection *conn, char *str, int len);
+static char *pgsql_escape_string(cp_db_connection *conn, char *str, size_t len);
 static char *pgsql_escape_binary(cp_db_connection *conn, char *str, 
-		                         int len, int *res_len);
+		                         size_t len, size_t *res_len);
 static cp_string *pgsql_unescape_binary(cp_db_connection *conn, char *str);
 static cp_db_statement *
 	pgsql_prepare_statement(cp_db_connection *conn, int prm_count, 
@@ -383,8 +387,8 @@ static cp_result_set *
 
 cp_string *pgsql_unescape_binary(cp_db_connection *conn, char *str)
 {
-	int newlen;
-	char *unescaped = PQunescapeBytea(str, &newlen);
+	size_t newlen;
+	char *unescaped = (char *)PQunescapeBytea((unsigned char *)str, &newlen);
 	cp_string *res = cp_string_create(unescaped, newlen);
 	PQfreemem(unescaped);
 	return res;
@@ -729,7 +733,7 @@ static int pgsql_update(cp_db_connection *_conn, char *query)
     return rows;
 }
 
-static char *pgsql_escape_string(cp_db_connection *conn, char *src, int len)
+static char *pgsql_escape_string(cp_db_connection *conn, char *src, size_t len)
 {
 	char *res = malloc(len * 2 + 1); /* postgres spec */
 	PQescapeString(res, src, len);
@@ -737,9 +741,9 @@ static char *pgsql_escape_string(cp_db_connection *conn, char *src, int len)
 }
 
 static char *pgsql_escape_binary(cp_db_connection *conn, char *src, 
-		                         int len, int *res_len)
+		                         size_t len, size_t *res_len)
 {
-	return PQescapeBytea(src, len, res_len);
+	return (char *)PQescapeBytea((unsigned char *)src, len, res_len);
 }
 
 //~~ magic numbers are postgres OIDs - maybe include 
@@ -1010,7 +1014,6 @@ static void *to_pgtime(cp_timestampz *tmz)
 static void subst_cp2pgsql(int count, cp_field_type *types, void **prm, int *lengths)
 {
 	int i;
-	short *s;
 	char *ch;
 	
 	for (i = 0; i < count; i++)
@@ -1018,7 +1021,6 @@ static void subst_cp2pgsql(int count, cp_field_type *types, void **prm, int *len
 		switch (types[i])
 		{
 			case CP_FIELD_TYPE_BOOLEAN:
-				s = prm[i];
 				ch = prm[i];
 				*ch = (prm[i] == 0 ? 'f' : 't');
 				lengths[i] = 1;

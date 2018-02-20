@@ -252,20 +252,27 @@ void cp_client_ssl_shutdown()
 static cp_lock *cp_gethostbyname_lock = NULL;
 #endif
 
-void cp_client_init()
+int cp_client_init()
 {
 #ifndef CP_HAS_GETHOSTBYNAME_R_6
 	if (cp_gethostbyname_lock == NULL)
 	{
 		cp_gethostbyname_lock = (cp_lock *) calloc(1, sizeof(cp_lock));
 		if (cp_gethostbyname_lock == NULL)
+		{
 			cp_fatal(CP_MEMORY_ALLOCATION_FAILURE, "can\'t allocate lock");
+			return CP_MEMORY_ALLOCATION_FAILURE;
+		}
 
 		if (cp_lock_init(cp_gethostbyname_lock, NULL))
+		{
 			cp_fatal(CP_INITIALIZATION_FAILURE, "can\'t initialize lock");
+			return CP_INITIALIZATION_FAILURE;
+		}
 	}
 #endif
 	cp_socket_init();
+	return 0;
 }
 
 void cp_client_shutdown()

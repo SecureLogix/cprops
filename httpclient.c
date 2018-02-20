@@ -95,7 +95,9 @@ int cp_httpclient_init()
 	if (initialized) return 1;
 	initialized = 1;
 
-	cp_client_init();
+	rc = cp_client_init();
+	if (rc != 0)
+		goto INIT_ERROR;
 
 	if ((rc = regcomp(&re_status_line, 
 					re_status_line_lit, REG_EXTENDED | REG_NEWLINE)))
@@ -753,7 +755,7 @@ cp_string *cp_httpclient_format_request(cp_httpclient *client, char *uri)
 	/* set Connection header if necessary */
 	if (cp_hashtable_get(client->header, "Connection") == NULL)
 	{
-		if (client->type == HTTP_1_1)
+		if (client->version == HTTP_1_1)
 		{
 			append_header(request, "Connection", "keep-alive");
 			append_header(request, "Keep-Alive", "300"); //~~
@@ -772,7 +774,6 @@ cp_string *cp_httpclient_format_request(cp_httpclient *client, char *uri)
 		{
 			int i, j;
 			int len, jlen;
-			cp_trie *container;
 			cp_vector *cooklist;
 			cp_http_cookie *ck;
 
@@ -780,7 +781,6 @@ cp_string *cp_httpclient_format_request(cp_httpclient *client, char *uri)
 			cookie_lit = cp_string_create_empty(80);
 			for (i = 0; i < len; i++)
 			{
-				container = cp_vector_element_at(urilist, i);
 				cooklist = cp_trie_fetch_matches(client->cookie_jar, uri);
 				if (cooklist == NULL) continue;
 				jlen = cp_vector_size(cooklist);

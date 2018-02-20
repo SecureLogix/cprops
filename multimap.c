@@ -597,7 +597,8 @@ static void *
 
 int cp_index_compare_internal(cp_index *index, void *a, void *b)
 {
-	void *e;
+	void *e = NULL;
+
 	if (index->type == CP_UNIQUE)
 		e = a;
 	else
@@ -763,7 +764,7 @@ void *cp_multimap_insert(cp_multimap *map, void *entry, int *err)
 		goto DONE;
 	}
 
-    while (idx = cp_hashlist_iterator_next(itr))
+    while ((idx = cp_hashlist_iterator_next(itr)))
         if (cp_index_map_insert(idx->value, res) == NULL)
 		{
 			if (err != NULL) *err = CP_MEMORY_ALLOCATION_FAILURE;
@@ -778,7 +779,7 @@ INSERT_ERROR:
     if (itr)
     {
         cp_hashlist_entry *idx;
-        while (idx = cp_hashlist_iterator_prev(itr))
+        while ((idx = cp_hashlist_iterator_prev(itr)))
             cp_index_map_drop(idx->value, entry);
     }
 	cp_index_map_delete(map->primary, entry);
@@ -797,7 +798,6 @@ DONE:
  */
 int cp_index_map_reindex(cp_index_map *tree, void *before, void *after)
 {
-	int rc = 0;
 	int cmp;
 	cp_index_map_node **curr;
 	cp_index_map_node *prev;
@@ -872,7 +872,6 @@ int cp_index_map_reindex(cp_index_map *tree, void *before, void *after)
  */
 int cp_multimap_reindex(cp_multimap *map, void *before, void *after)
 {
-	int rc;
 	void *existing;
 	void *dupl = NULL;
 	cp_index *index;
@@ -884,8 +883,10 @@ int cp_multimap_reindex(cp_multimap *map, void *before, void *after)
 	if (violation_count > 2 || 
 		(violation_count == 2 && existing != before))
 	{
+#if 0
 		printf("unique index violation. ciao.\n");
 		*(char *) 0 = 0;
+#endif
 		return CP_UNIQUE_INDEX_VIOLATION;
 	}
 
@@ -1463,7 +1464,7 @@ void cp_multimap_drop(cp_multimap *map,
     {
         cp_hashlist_entry *idx;
 
-        while (idx = cp_hashlist_iterator_next(itr))
+        while ((idx = cp_hashlist_iterator_next(itr)))
             if (idx->key != index && idx->key != &map->primary) 
 				cp_index_map_drop(idx->value, entry);
 

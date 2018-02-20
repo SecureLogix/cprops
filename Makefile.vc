@@ -13,12 +13,12 @@ OBJS =  util.obj log.obj collection.obj vector.obj str.obj heap.obj \
 	  hashlist.obj mtab.obj trie.obj avl.obj rb.obj splay.obj \
 	  mempool.obj sorted_hash.obj nary.obj \
 	  thread.obj socket.obj client.obj http.obj httpclient.obj \
-	  multimap.obj $(OPT_OBJS)
+	  multimap.obj wtab.obj wtrie.obj bstr.obj rtrie.obj $(OPT_OBJS)
 
 HEADER =  config.h common.h collection.h util.h log.h vector.h str.h heap.h \
 	  linked_list.h priority_list.h hashtable.h hashlist.h trie.h \
 	  avl.h rb.h mtab.h splay.h mempool.h sorted_hash.h nary.h \
-	  thread.h socket.h client.h http.h \
+	  thread.h socket.h client.h http.h wtab.h wtrie.h bstr.h rtrie.h \
 	  httpclient.h multimap.h $(OPT_OBJS:.o=.h)
 
 CFLAGS=$(CFLAGS) /nologo /O2 /G5 /D_WINDOWS /DWIN32

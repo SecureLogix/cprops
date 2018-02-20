@@ -26,9 +26,11 @@
 
 #include "config.h"
 
-//#ifndef CP_HASHLIST_MULTIPLE_VALUES
-//#define CP_HASHLIST_MULTIPLE_VALUES 1
-//#endif
+/* debug */
+#ifndef CP_HASHLIST_MULTIPLE_VALUES
+#define CP_HASHLIST_MULTIPLE_VALUES 1
+#endif
+
 
 	/* internal methods */
 
@@ -95,12 +97,11 @@ cp_hashlist *
                                	 cp_copy_fn copy_value,
 								 cp_destructor_fn free_value)
 {
-	if ((mode & COLLECTION_MODE_LIST_ORDER)) {
-		assert(0); // jaym: COLLECTION_MODE_LIST_ORDER is buggy under the get() flow
-
+	// SLC change - bug avoidance
+	if( (mode & COLLECTION_MODE_LIST_ORDER) ) {
+		assert(0); // SLC: COLLECTION_MODE_LIST_ORDER is buggy under get() flow
 		return NULL;
 	}
-
     cp_hashlist *list = (cp_hashlist *) calloc(1, sizeof(cp_hashlist));
     if (list == NULL) 
 	{
@@ -318,7 +319,7 @@ int cp_hashlist_set_mode(cp_hashlist *list, int mode)
 		rc = 0;
 	}
 
-	return 0;
+	return rc;
 }
 
 int cp_hashlist_unset_mode(cp_hashlist *list, int mode)
@@ -1307,9 +1308,8 @@ static void *cp_hashlist_get_internal(cp_hashlist *list, void *key)
 			while (entry) {
 				if ((*list->compare_fn)(entry->key, key) == 0)
 					cp_list_append(res, entry->value);
-
-				// jaym: This was missing, you need to advance the bucket pointer for god's sake
-				// or else this while is infinite!
+				
+				// SLC change - advance was missing - leading to infinite loop
 				entry = entry->bucket;
 			}
 		}

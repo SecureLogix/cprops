@@ -12,6 +12,7 @@
 
 
 #include "common.h"
+#include "config.h"
 
 #include <stdarg.h>
 #ifdef CP_HAS_SYS_TIME_H
@@ -244,13 +245,13 @@ void cp_db_connection_set_fetch_size(cp_db_connection *connection, int fetch_siz
 CPROPS_DLL
 char *cp_db_connection_escape_string(cp_db_connection *connection, 
 		                             char *src,
-								     int len);
+								     size_t len);
 /** escape binary data for use in an SQL query on this connection */
 CPROPS_DLL
 char *cp_db_connection_escape_binary(cp_db_connection *connection, 
 		                             char *src, 
-								     int src_len, 
-								     int *res_len);
+								     size_t src_len, 
+								     size_t *res_len);
 /** unescape binary data returned by an SQL query on this connection */
 CPROPS_DLL
 cp_string *cp_db_connection_unescape_binary(cp_db_connection *connection,
@@ -335,14 +336,14 @@ typedef int (*cp_db_close_fn)(cp_db_connection *conn);
 /** 
  * implementations may define a function to escape strings for use in SQL queries 
  */
-typedef char *(*cp_db_escape_string_fn)(cp_db_connection *conn, char *src, int len);
+typedef char *(*cp_db_escape_string_fn)(cp_db_connection *conn, char *src, size_t len);
 
 /** 
  * implementations may define a function to escape binary data for use in SQL 
  * queries 
  */
 typedef char *(*cp_db_escape_binary_fn)(cp_db_connection *conn, char *src, 
-		                                int src_len, int *res_len);
+		                                size_t src_len, size_t *res_len);
 /** 
  * implementation may define a function to unescape binary data returned by
  * an SQL query

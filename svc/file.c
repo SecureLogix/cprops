@@ -116,11 +116,17 @@ int init_file_service(char *mimetypes_filename, char *doc_path)
 	int rc = 0;
 
 	if ((rc = checkdir(doc_path)))
+	{
 		cp_fatal(rc, "can\'t open document root at [%s]", doc_path);
+		exit(rc);
+	}
 
 	if ((rc = load_mime_types(mimetypes_filename)))
+	{
 		cp_fatal(rc, "can\'t load mime types from [%s], sorry", 
 				 mimetypes_filename); 
+		exit(rc);
+	}
 
 	document_root = doc_path;
 

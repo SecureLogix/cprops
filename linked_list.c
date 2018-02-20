@@ -286,7 +286,7 @@ void *cp_list_insert_after(cp_list *list, void *item, void *existing)
 
     if (cp_list_txlock(list, COLLECTION_LOCK_WRITE)) return NULL;
 
-    if (!(list->mode) & COLLECTION_MODE_MULTIPLE_VALUES) 
+    if (!((list->mode) & COLLECTION_MODE_MULTIPLE_VALUES))
 	{
         here = cp_list_get_entry_ref(list, item);
         if (*here != NULL) 
@@ -330,7 +330,7 @@ void *cp_list_insert_before(cp_list *list, void *item, void *existing)
 
     if (cp_list_txlock(list, COLLECTION_LOCK_WRITE)) return NULL;
 
-    if (!(list->mode) & COLLECTION_MODE_MULTIPLE_VALUES) 
+    if (!((list->mode) & COLLECTION_MODE_MULTIPLE_VALUES))
 	{
         here = cp_list_get_entry_ref(list, item);
         if (*here != NULL) 

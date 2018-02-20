@@ -686,9 +686,8 @@ CPROPS_DLL
 void *cp_sorted_hash_find(cp_sorted_hash *tree, cp_mapping *mapping, cp_op op)
 {
 	int cmp;
-	unsigned long index;
 	cp_sh_entry **curr;
-	cp_sh_entry *prev;
+	cp_sh_entry *prev = NULL;
 	cp_sh_entry *res = NULL;
 
 	if (tree->root == NULL) return NULL;
@@ -963,7 +962,6 @@ void *cp_sorted_hash_delete_impl(cp_sorted_hash *tree, void *key)
 	cp_sh_entry **table_node;
 	unsigned long index;
 	cp_sh_entry *node; 
-	int cmp;
 
 	//~~ handle multiples
 	index = (*tree->hash)(key) % tree->size;

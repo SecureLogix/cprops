@@ -36,7 +36,8 @@ EXAMPLE_SRC = test_avl.c test_avl_multi.c test_client.c test_hashlist.c \
 			  test_str.c test_trie.c test_trie2.c test_vector.c \
 			  test_rb.c test_splay.c wf.c test_heap.c @ssl_example@ \
 			  test_mempool.c test_sorted_hash.c test_narytree.c \
-			  test_multimap.c test_reindex.c test_reindex_unique.c
+			  test_multimap.c test_reindex.c test_reindex_unique.c \
+			  test_wtab.c test_wtrie.c test_bstr.c test_rtrie.c
 
 EXAMPLE_OBJ = $(EXAMPLE_SRC:.c=.o) 
 EXAMPLE_EXE = $(EXAMPLE_SRC:.c=)

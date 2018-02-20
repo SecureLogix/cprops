@@ -96,7 +96,7 @@ SSL_CTX *get_ssl_ctx(char *certificate_file, char *key_file)
 	if (ctx == NULL)
 	{
 		int rc = 0;
-		SSL_METHOD *method = SSLv23_server_method();
+		const SSL_METHOD *method = SSLv23_server_method();
 		ctx = SSL_CTX_new(method);
 		if (ctx == NULL)
 		{
@@ -162,7 +162,7 @@ SSL_CTX *get_client_ssl_ctx(char *CA_file, char *CA_path)
 	if (ctx == NULL)
 	{
 		int rc;
-		SSL_METHOD *method = SSLv23_client_method();
+		const SSL_METHOD *method = SSLv23_client_method();
 		ctx = SSL_CTX_new(method);
 
 		rc = SSL_CTX_load_verify_locations(ctx, CA_file, CA_path); 

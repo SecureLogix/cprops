@@ -298,6 +298,35 @@ void cp_free(void *p);
 struct _cp_mempool;
 struct _cp_shared_mempool;
 
+#ifdef CP_HAS___BUILTIN_CLZ
+#define CP_CLZ_CHAR(x) (__builtin_clz(x) - 24)
+#define CP_CLZ_LONG_LONG(x) __builtin_clzll(x)
+#else
+#error NOT HAS CLZ
+#ifdef _MSC_VER
+#include <intrin.h>
+unsigned int __inline msc_clz( unsigned int x );
+#define CP_CLZ_CHAR(x) (msc_clz(x) - 24)
+unsigned int __inline msc_clz64( unsigned long long x );
+#define CP_CLZ_LONG_LONG(x) msc_clz64(x)
+#else
+static int cp_clz_char_slow(unsigned int x)
+{
+	int bit, lz;
+	for (lz = 0, bit = 0x80; bit > 0 && ((bit & x) == 0); lz++, bit >>= 1);
+	return lz;
+}
+#define CP_CLZ_CHAR(x) cp_clz_char_slow(x)
+static int cp_clz_long_long_slow(unsigned long long x)
+{
+	int count;
+	for (count = 0; x != 0; x >>= 1, count++);
+	return sizeof(long long) * 8 - count;
+}
+#define CP_CLZ_LONG_LONG(x) cp_clz_long_long_slow(x)
+#endif /* _MSC_VER */
+#endif /* CP_HAS___BUILTIN_CLZ */
+
 __END_DECLS
 
 /** @} */

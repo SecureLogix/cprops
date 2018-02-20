@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "collection.h"
+#include "log.h"
 
 cp_wrap *cp_wrap_new(void *item, cp_destructor_fn dtr)
 {

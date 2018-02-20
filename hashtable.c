@@ -37,9 +37,9 @@
 #include <unistd.h>
 #endif /* __OpenBSD__ */
 
-//#ifndef CP_HASHTABLE_MULTIPLE_VALUES
-//#define CP_HASHTABLE_MULTIPLE_VALUES 1
-//#endif
+#ifndef CP_HASHTABLE_MULTIPLE_VALUES
+#define CP_HASHTABLE_MULTIPLE_VALUES 1
+#endif
 
 static int table_sizes[] = 
     {
@@ -943,6 +943,8 @@ int cp_hashtable_remove_all(cp_hashtable *table)
         }
     }
 
+	memset(table->table, 0, sizeof(cp_hashtable_entry *) * table->table_size);
+
     if (table->resizing) 
     {
         for (i = 0; i < table->resize_len; i++) 
@@ -958,6 +960,7 @@ int cp_hashtable_remove_all(cp_hashtable *table)
                     free(entry);
                     entry = next;
                 }
+		memset(table->resize_table, 0, sizeof(cp_hashtable_entry *) * table->resize_len);
     }
 
     cp_hashtable_txunlock(table);
@@ -1162,7 +1165,6 @@ int cp_hash_compare_addr(void *a1, void *a2)
 
 unsigned long cp_hash_string(void *str)
 {
-    int i;
     long res;
     char *_str;
     
@@ -1170,7 +1172,7 @@ unsigned long cp_hash_string(void *str)
 
     _str = (char *) str;
     
-    for (i = 0, res = 1; *_str != '\0'; _str++)
+    for (res = 1; *_str != '\0'; _str++)
         res = res * HASH_SEED + *_str;
 
     return res;
@@ -1188,7 +1190,6 @@ int cp_hash_compare_string(void *s1, void *s2)
         
 unsigned long cp_hash_istring(void *str)
 {
-    int i;
     long res;
     char *_str;
     
@@ -1196,7 +1197,7 @@ unsigned long cp_hash_istring(void *str)
 
     _str = (char *) str;
     
-    for (i = 0, res = 1; *_str != '\0'; _str++)
+    for (res = 1; *_str != '\0'; _str++)
         res = res * HASH_SEED + CP_CHAR_UC(*_str);
 
     return res;

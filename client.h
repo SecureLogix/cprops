@@ -54,7 +54,7 @@ __BEGIN_DECLS
 
 /** recommended to call before using tcp client socket functions */
 CPROPS_DLL
-void cp_client_init();
+int cp_client_init();
 /** 
  * call from signal handler to stop sockets in waiting select() and close all 
  * connections
@@ -74,9 +74,6 @@ void cp_client_ssl_shutdown();
 CPROPS_DLL
 char *ssl_verification_error_str(int code);
 #endif /* CP_USE_SSL */
-
-CPROPS_DLL
-void cp_client_init();
 
 CPROPS_DLL
 void cp_client_shutdown();

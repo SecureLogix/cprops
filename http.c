@@ -1276,7 +1276,7 @@ int cp_http_response_write(cp_connection_descriptor *cdesc,
 #ifdef __TRACE__
 	cp_info("----- http response headers -----\n%s", rbuf);
 	if (res->content) 
-		cp_ndump(LOG_LEVEL_INFO, res->content, 0x400);
+		cp_ndump(CP_LOG_LEVEL_INFO, res->content, 0x400);
 	else if (res->body) 
 		cp_nlog(0x400, content);
 	if (content_len > 0x400) 

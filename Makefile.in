@@ -41,13 +41,15 @@ OPT_INSTALL= @OPT_INSTALL@
 OBJS   =  util.o log.o collection.o mempool.o vector.o str.o \
 		  linked_list.o heap.o priority_list.o hashtable.o \
 		  hashlist.o mtab.o trie.o avl.o rb.o splay.o \
-		  sorted_hash.o nary.o multimap.o \
+		  sorted_hash.o nary.o multimap.o wtab.o wtrie.o \
+		  bstr.o rtrie.o \
 		  thread.o socket.o client.o http.o httpclient.o $(OPT_OBJS)
 LOBJS  =  $(OBJS:.o=.lo)		  
 HEADER =  config.h common.h collection.h mempool.h util.h log.h \
 		  vector.h str.h heap.h linked_list.h priority_list.h \
 		  hashtable.h hashlist.h trie.h avl.h rb.h mtab.h splay.h \
-		  sorted_hash.h nary.h multimap.h \
+		  sorted_hash.h nary.h multimap.h wtab.h wtrie.h rtrie.h \
+		  bstr.h \
 	  	  thread.h socket.h client.h http.h httpclient.h $(OPT_OBJS:.o=.h)
 
 TEST_SRC = testhttpsrv.c
@@ -60,8 +62,8 @@ SED     =  @SED@
 DEFS    =  @DEFS@
 LDFLAGS =  @LDFLAGS@
 LIBS    =  @LIBS@
+SHELL   =  @SHELL@
 LIBTOOL =  @LIBTOOL@
-SHELL   =  /bin/sh
 
 MAKEDEPEND = @MAKEDEPEND@
 
@@ -94,13 +96,13 @@ all: libcprops.la $(OPT_TARGETS) $(subdirs)
 		uninstall uninstall-recursive \
 		install-libcp-dbms-postgres install-libcp-dbms-mysql  
 
-$(subdirs):
+$(subdirs): | libcprops.la
 	(cd $@ && $(MAKE) || fail=yes; cd $(top_builddir); test -z "$$fail")
 
 libcprops.la: $(OBJS)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -rpath $(libdir) \
 		-version-info '$(CPROPSLIBVERSION)' -export-dynamic \
-		-o libcprops.la $(LOBJS)
+		-o libcprops.la $(LOBJS) $(LIBS)
 
 $(PGSQL_OBJ): $(PGSQL_SRC) $(PGSQL_HDR)
 	$(LIBTOOL) --mode=compile $(CC) $(PGSQL_CFLAGS) $(DEFS) -c $(PGSQL_SRC)
@@ -109,7 +111,7 @@ libcp_dbms_postgres.la: libcprops.la $(PGSQL_OBJ)
 	$(LIBTOOL) --mode=link $(CC) $(PGSQL_CFLAGS) -rpath $(libdir) \
 		-version-info '$(CP_DBMS_PGSQL_LIBVERSION)' -export-dynamic \
 		$(PGSQL_LDFLAGS) -o libcp_dbms_postgres.la $(PGSQL_OBJ:.o=.lo) \
-		$(PGSQL_LIBS)
+		$(PGSQL_LIBS) libcprops.la
 
 db_mysql.o: db_mysql.c db_mysql.h
 	$(LIBTOOL) --mode=compile $(CC) $(MYSQL_CFLAGS) $(DEFS) -c $<
@@ -118,7 +120,7 @@ libcp_dbms_mysql.la: libcprops.la db_mysql.o
 	$(LIBTOOL) --mode=link $(CC) $(MYSQL_CFLAGS) -rpath $(libdir) \
 		-version-info '$(CP_DBMS_MYSQL_LIBVERSION)' -export-dynamic \
 		$(MYSQL_LDFLAGS) -o libcp_dbms_mysql.la $(MYSQL_OBJ:.o=.lo) \
-		$(MYSQL_LIBS)
+		$(MYSQL_LIBS) libcprops.la
 
 test: $(TEST_BIN)
 
@@ -151,7 +153,7 @@ install-libcprops: all installdirs
 	@echo "Installing libcprops"
 	$(LIBTOOL) --mode=install $(INSTALL) libcprops.la $(libdir)/libcprops.la
 	@$(INSTALL_DATA) $(HEADER) $(incdir)
-	@ls man3/ | grep -v CVS | sed 's/^/man3\//' > .manpages
+	@ls man3/ | grep -v CVS | grep -v '.svn' | sed 's/^/man3\//' > .manpages
 	@$(INSTALL_DATA) `cat .manpages` $(man3dir)
 	rm -f .manpages
 	$(LIBTOOL) --finish $(libdir)
@@ -176,7 +178,7 @@ uninstall: uninstall-recursive
 		popd; \
 	fi
 	@echo removing man pages
-	ls man3/ | grep -v CVS | sed "s|^|$(man3dir)/|" > .manpages
+	ls man3/ | grep -v CVS | grep -v '.svn' | sed "s|^|$(man3dir)/|" > .manpages
 	rm -f `cat .manpages`
 	rm -f .manpages
 

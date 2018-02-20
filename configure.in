@@ -2,6 +2,8 @@ dnl Process this file with autoconf to produce a configure script.
 AC_INIT(hashlist.c)
 AC_CONFIG_HEADER(config.h)
 
+AC_CONFIG_MACRO_DIR([m4])
+
 CPROPSVERSION=`head -n 1 VERSION`
 AC_SUBST(CPROPSVERSION)
 CPROPSLIBVERSION=`head -n 2 VERSION | tail -n 1`
@@ -20,13 +22,17 @@ AC_ARG_WITH(libs,
 [  --with-libs=LIBS        use LIBS for extra libraries],
 LIBS="$LIBS $withval")
 
+AC_ARG_ENABLE(dependency-tracking,
+[  --disable-dependency-tracking	ignored],
+[], [])
+
 OPT_OBJS=""
 
 AC_CANONICAL_HOST
 
 case "$host" in
   *-linux-*)
-    CFLAGS="$CFLAGS -D_REENTRANT -D_GNU_SOURCE"
+    CFLAGS="$CFLAGS -D_GNU_SOURCE"
     ;;
   *-solaris*)
     LIBS="$LIBS -lsocket -lnsl"
@@ -80,6 +86,7 @@ AC_PROG_LIBTOOL
 
 if test "$GCC" = "yes" ; then
   CFLAGS="$CFLAGS -O2"
+  AC_DEFINE([CP_HAS___BUILTIN_CLZ])
 fi
 
 dnl -------------------------------------------------------------------------
@@ -104,6 +111,7 @@ AC_CHECK_HEADER(pthread.h, AC_DEFINE([CP_HAS_PTHREAD_H]), )
 AC_CHECK_HEADER(regex.h, AC_DEFINE([CP_HAS_REGEX_H]), )
 AC_CHECK_HEADER(sys/socket.h, AC_DEFINE([CP_HAS_SYS_SOCKET_H]), )
 AC_CHECK_HEADER(sys/select.h, AC_DEFINE([CP_HAS_SYS_SELECT_H]), )
+AC_CHECK_HEADER(arpa/inet.h, AC_DEFINE([CP_HAS_ARPA_INET_H]), )
 AC_CHECK_HEADER(netinet/in.h, AC_DEFINE([CP_HAS_NETINET_IN_H]), )
 AC_CHECK_HEADER(netdb.h, AC_DEFINE([CP_HAS_NETDB_H]), )
 AC_CHECK_HEADER(sys/poll.h, AC_DEFINE([CP_HAS_SYS_POLL_H]), )
@@ -309,10 +317,10 @@ AC_ARG_ENABLE(hashtable-multiples,
 [  --enable-hashtable-multiples   hashtables allow multiple values [[disabled]]], [
   if test "$enableval" = yes; then
       echo enabling multiple values in hash tables
-      AC_DEFINE([CP_HASHTABLE_MUTLIPLE_VALUES], [1], [allow multiple values])
+      AC_DEFINE([CP_HASHTABLE_MULTIPLE_VALUES], [1], [allow multiple values])
   else
       echo disabling multiple values in hash tables
-      AC_DEFINE([CP_HASHTABLE_MUTLIPLE_VALUES], [0], [no multiple values])
+      AC_DEFINE([CP_HASHTABLE_MULTIPLE_VALUES], [0], [no multiple values])
   fi
 ])
 
@@ -359,6 +367,23 @@ else
     AC_DEFINE(CP_USE_HTTP_SESSIONS, [0], [not supporting http sessions])
 fi
 
+dnl libpq treats binary parameters as big endian (network order) - check if 
+dnl conversions required - test moved up here to define byte order macro also
+dnl when not using postgres
+AC_MSG_CHECKING(whether hardware byte order is little endian)
+AC_EGREP_CPP([yes],[
+#include <sys/types.h>
+#include <sys/param.h>
+#if BYTE_ORDER == LITTLE_ENDIAN
+yes
+#else
+no
+#endif],
+  AC_MSG_RESULT(yes)
+  AC_DEFINE(CP_BYTE_ORDER_LITTLE_ENDIAN, [1], 
+			[Define to 1 if hardware byte order is little endian]),
+  AC_MSG_RESULT(no))
+
 dnl -------------------------------------------------------------------------
 dnl openssl 
 dnl -------------------------------------------------------------------------
@@ -367,7 +392,7 @@ AC_ARG_WITH(ssl,
 [  --with-ssl[=DIR]          path to OpenSSL installation [[/usr/local/ssl]]], [
   AC_MSG_CHECKING(for libssl)
   if test -d "$withval"; then
-    ssllib="$withval/lib";
+    ssllib="$withval";
     sslinc="$withval/include";
 	AC_MSG_RESULT(found)
   else
@@ -392,8 +417,8 @@ dnl check where openssl is installed
 if test "$ssl" = "yes" ; then
   AC_MSG_CHECKING(libssl location)
   if test "x$ssllib" = "x" && test "x$sslinc" = "x"; then
-    for loc in /usr/lib /usr/local/ssl/lib /usr/local/openssl/lib; do
-      if test -f "$loc/libssl.a"; then
+    for loc in /lib64 /lib /usr/lib64 /usr/lib /usr/local/ssl/lib /usr/local/openssl/lib; do
+      if test -f "$loc/libssl.a" -o -f "$loc/libssl.so"; then
         ssllib="$loc"
 		break
       fi
@@ -542,12 +567,12 @@ dnl -------------------------------------------------------------------------
 AC_MSG_CHECKING(whether to compile postgres support) 
 if test "x$use_pgsql" != "x" ; then
   AC_MSG_RESULT(yes)
-  if test -e "$pg_lib_prm/libpq.a" ; then
-    pg_lib = $pg_lib_prm
+  if test -f "$pg_lib_prm/libpq.a" -o -f "$pg_lib_prm/libpq.so" ; then
+    pg_lib=$pg_lib_prm
   else
-    for loc in $pg_dir_prm /usr/local /usr /usr/local/pgsql /usr/local/postgres /usr/local/postgresql /opt/pgsql /opt/postgres /opt/postgresql ; do
-      if test -e "$loc/lib/libpq.a" ; then
-	    pg_lib="$loc/lib"
+    for loc in $pg_dir_prm /lib64 /lib /usr/lib64 /usr/lib /usr/local/lib /usr/local/pgsql/lib /usr/local/postgres/lib /usr/local/postgresql/lib /opt/pgsql/lib /opt/postgres/lib /opt/postgresql/lib ; do
+      if test -f "$loc/libpq.a" -o -f "$loc/libpq.so"; then
+	    pg_lib="$loc"
 		break
 	  fi
     done
@@ -557,11 +582,11 @@ if test "x$use_pgsql" != "x" ; then
     AC_MSG_ERROR(can't find postgres client library)
   fi
 
-  if test -e "$pg_include_prm/libpq-fe.h" ; then
-    pg_include = $pg_include_prm
+  if test -f "$pg_include_prm/libpq-fe.h" ; then
+    pg_include=$pg_include_prm
   else
     for loc in $pg_dir_prm /usr/local /usr /usr/local/pgsql /usr/local/postgres /usr/local/postgresql /opt/pgsql /opt/postgres /opt/postgresql ; do
-      if test -e "$loc/include/libpq-fe.h" ; then
+      if test -f "$loc/include/libpq-fe.h" ; then
   	    pg_include="$loc/include"
 		break
       fi
@@ -571,21 +596,6 @@ if test "x$use_pgsql" != "x" ; then
   if test "x$pg_include" = "x" ; then
     AC_MSG_ERROR(can't find postgres client header files)
   fi
-
-  dnl libpq treats binary parameters as big endian (network order) - check if 
-  dnl conversions required
-  AC_MSG_CHECKING(whether hardware byte order is little endian)
-  AC_TRY_RUN([
-    int main(void) 
-	{
-	    int i = 1;
-		char *c = (char *) &i;
-		return *c == 0;
-	}],
-    AC_MSG_RESULT(yes)
-    AC_DEFINE(CP_BYTE_ORDER_LITTLE_ENDIAN, [1], 
-              [Define to 1 if hardware byte order is little endian]),
-	AC_MSG_RESULT(no))
 
   OPT_TARGETS="$OPT_TARGETS libcp_dbms_postgres.la"
   OPT_INSTALL="$OPT_INSTALL install-libcp-dbms-postgres"
@@ -621,12 +631,12 @@ dnl -------------------------------------------------------------------------
 AC_MSG_CHECKING(whether to compile mysql support) 
 if test "x$use_mysql" != "x" ; then
   AC_MSG_RESULT(yes)
-  if test -e "$mysql_lib_prm/libmysqlclient.a" ; then
-    mysql_lib = $mysql_lib_prm
+  if test -f "$mysql_lib_prm/libmysqlclient.so" ; then
+    mysql_lib=$mysql_lib_prm
   else
-    for loc in $mysql_dir_prm /usr/local /usr /usr/local/mysql /opt/mysql ; do
-      if test -e "$loc/lib/libmysqlclient.a" ; then
-	    mysql_lib="$loc/lib"
+    for loc in $mysql_dir_prm /lib64 /lib /usr/lib64 /usr/lib /usr/local/lib /usr/local/mysql/lib /opt/mysql/lib ; do
+      if test -f "$loc/libmysqlclient.a" ; then
+	    mysql_lib="$loc"
 		break
 	  fi
     done
@@ -636,11 +646,11 @@ if test "x$use_mysql" != "x" ; then
     AC_MSG_ERROR(can't find mysql client library)
   fi
 
-  if test -e "$mysql_include_prm/mysql.h" ; then
-    mysql_include = $mysql_include_prm
+  if test -f "$mysql_include_prm/mysql.h" ; then
+    mysql_include=$mysql_include_prm
   else
     for loc in $mysql_dir_prm /usr/local /usr /usr/local/mysql /opt/mysql ; do
-      if test -e "$loc/include/mysql.h" ; then
+      if test -f "$loc/include/mysql.h" ; then
   	    mysql_include="$loc/include"
 		break
       fi
@@ -759,7 +769,7 @@ dnl check for makedepend
 MAKEDEPEND=`which makedepend | sed '/^no /d'`
 if test "x$MAKEDEPEND" = "x" ; then
   for loc in /usr/X11R6/bin /usr/X/bin; do
-    if test -e "$loc/makedepend"; then
+    if test -f "$loc/makedepend"; then
 	  MAKEDEPEND=$loc/makedepend -Y
 	  break
 	fi

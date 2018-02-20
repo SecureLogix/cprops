@@ -1,6 +1,43 @@
 ChangeLog for libcprops
 -----------------------
 
+Version 0.1.12-SLC4 - 20 February 2018 - D. Scott
+ o Changed the names of the LOG_LEVEL_* defines to CP_LOG_LEVEL_* in order to avoid conflicting with defines and enums in users of the library.
+ o Include stdio.h in various files that were using the printf function without otherwise having a proper definition prototype declared.
+
+Version 0.1.12-SLC3 - 19 Oct 2016 - D. Scott
+ o Modified build script to create installation tarballs for use as make dependencies
+ o Fixed incompatible pointer assignment warnings in bstr.c
+
+Version 0.1.12-SLC2 - 28 Nov 2012 - D. Scott
+ o Fix misspelling in macro name (to CP_HASHLIST_MULTIPLE_VALUES from CP_HASHLIST_MUTLIPLE_VALUES) in config.h.in, configure, and configure.in
+
+Version 0.1.12-SLC1 - Oct 2012 - D. Scott, J. Materna
+ o hashlist.c: Fix infinite loop in cp_hashlist_get_internal()
+ o hashlist.c: Disable COLLECTION_MODE_LIST_ORDER under get because it is buggy
+
+
+Version 0.1.12 23-Jan-2012
+ o	cp_fatal no longer exits - this change is to match rpmlint requirements
+ o	configure script - added a check for _WINDOWS being defined before testing
+    the version
+ o	configure script - tests for the shared-object version of libmysqlclient 
+    instead of the static link.
+ o  workaround a deficiency in libtool requiring libcp_dbms_postgres.so to
+    also link against libcprops.so
+ o	fixed Makefile.in for Ubuntu 11.10
+
+Version 0.1.10 5-Dec-2011
+
+ o	 fixed makefiles to compile rtrie code
+ o	 bstr compare function uses hardware CLZ with gcc, MSVC
+
+Version 0.1.9 17-Nov-2011
+
+ o   adding cp_rtrie - a bit string radix trie
+ o   adding cp_wtrie - a wide character radix trie
+ o   adding cp_bstr - a bit string structure
+
 Version 0.1.8 15-Dec-2007
 
  o   fixed test_reindex.c and test_reindex_unique test programs

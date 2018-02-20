@@ -591,7 +591,7 @@ void *cp_rbtree_find(cp_rbtree *tree, void *key, cp_op op)
 {
 	int cmp;
 	cp_rbnode **curr;
-	cp_rbnode *prev;
+	cp_rbnode *prev = NULL;
 	cp_rbnode *res = NULL;
 
 	if (tree->root == NULL) return NULL;

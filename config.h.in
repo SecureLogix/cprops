@@ -7,7 +7,7 @@
 #undef CP_HASHLIST_MULTIPLE_VALUES
 
 /* no multiple values */
-#undef CP_HASHTABLE_MUTLIPLE_VALUES
+#undef CP_HASHTABLE_MULTIPLE_VALUES
 
 /* Define to 1 if you have the <dirent.h> header file. */
 #undef CP_HAS_DIRENT_H
@@ -53,6 +53,9 @@
 
 /* Define to 1 if you have the `memset' function. */
 #undef CP_HAS_MEMSET
+
+/* Define to 1 if you have the <arpa/inet.h> header file. */
+#undef CP_HAS_ARPA_INET_H
 
 /* Define to 1 if you have the <netdb.h> header file. */
 #undef CP_HAS_NETDB_H
@@ -223,5 +226,8 @@
 
 /* Define to 1 if hardware byte order is little endian */
 #undef CP_BYTE_ORDER_LITTLE_ENDIAN
+
+/* Define to 1 if you have the `__builtin_clz` function */
+#undef CP_HAS___BUILTIN_CLZ
 
 #endif /* _CP_CONFIG_H */
